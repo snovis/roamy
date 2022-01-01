@@ -19,6 +19,7 @@ export default class MyPlugin extends Plugin {
 
 	async onload() {
 		await this.loadSettings();
+		console.log("Loading Roamy Plugin");
 
 		// This creates an icon in the left ribbon.
 		const ribbonIconEl = this.addRibbonIcon('dice', 'Roamy', (evt: MouseEvent) => {
@@ -41,12 +42,26 @@ export default class MyPlugin extends Plugin {
 			}
 		});
 		// This adds an editor command that can perform some operation on the current editor instance
+		/***
+		 * This next section is what I'm looking for.  If the editor is in markdown view, yyou can use an 
+		 * editor call back and that will give you access ot the editor, so you can do things like replace
+		 * the selection with new text.  This could be my entry to modify the content inside the editor!
+		***/
 		this.addCommand({
-			id: 'roamy-editor-command',
-			name: 'roamy editor command',
+			id: 'roamy-editor-command-test',
+			name: 'roamy editor test',
 			editorCallback: (editor: Editor, view: MarkdownView) => {
-				console.log(editor.getSelection());
-				editor.replaceSelection('Roamy Editor Command');
+				console.log("Roamy: Called Editor Command with selection:" + editor.getSelection());
+				// editor.replaceSelection('Roamy Editor Command');
+			}
+		});
+
+		this.addCommand({
+			id: 'roamy-editor-command-fix-bullets',
+			name: 'roamy fix bullets',
+			editorCallback: (editor: Editor, view: MarkdownView) => {
+				console.log("Roamy Fix Bullets");
+				// editor.replaceSelection('Roamy Editor Command');
 			}
 		});
 		// This adds a complex command that can check whether the current state of the app allows execution of the command
@@ -75,7 +90,7 @@ export default class MyPlugin extends Plugin {
 		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
 		// Using this function will automatically remove the event listener when this plugin is disabled.
 		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-			console.log('click', evt);
+			console.log('Roamy click', evt);
 		});
 
 		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
@@ -107,6 +122,7 @@ class RoamyModal extends Modal {
 	onOpen() {
 		const {contentEl} = this;
 		contentEl.setText(this.message);
+		console.log("RoamyModal Called")
 	}
 
 	onClose() {
