@@ -21,6 +21,7 @@ export default class MyPlugin extends Plugin {
 		await this.loadSettings();
 		console.log("Loading Roamy Plugin");
 
+/* don't need any of this.
 		// This creates an icon in the left ribbon.
 		const ribbonIconEl = this.addRibbonIcon('dice', 'Roamy', (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
@@ -28,46 +29,19 @@ export default class MyPlugin extends Plugin {
 		});
 		// Perform additional things with the ribbon
 		ribbonIconEl.addClass('my-plugin-ribbon-class');
-
+*/
 		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
 		const statusBarItemEl = this.addStatusBarItem();
-		statusBarItemEl.setText('Roamy Status Bar');
+		statusBarItemEl.setText('Roamy');
 
-		// This adds a simple command that can be triggered anywhere
-		this.addCommand({
-			id: 'open-roamy-modal-simple',
-			name: 'Open roamy modal (simple)',
-			callback: () => {
-				new RoamyModal(this.app, this.settings.message).open();
-			}
-		});
+
 		// This adds an editor command that can perform some operation on the current editor instance
 		/***
 		 * This next section is what I'm looking for.  If the editor is in markdown view, yyou can use an 
 		 * editor call back and that will give you access ot the editor, so you can do things like replace
 		 * the selection with new text.  This could be my entry to modify the content inside the editor!
 		***/
-		this.addCommand({
-			id: 'roamy-editor-command-test',
-			name: 'roamy editor test',
-			editorCallback: (editor: Editor, view: MarkdownView) => {
-				console.log("Roamy: Called Editor Command with selection:" + editor.getSelection());
-				// editor.replaceSelection('Roamy Editor Command');
-			}
-		});
 
-		this.addCommand({
-			id: 'roamy-editor-command-clobber-everything',
-			name: 'roamy clobber everything',
-			editorCallback: (editor: Editor, view: MarkdownView) => {
-				console.log("Roamy Clobber Everything");
-				console.log(editor.lineCount());
-				for (let l = 0; l < editor.lineCount(); l++) {
-					editor.setLine(l, `- This is line ${l+1}`);
-				}
-				// editor.replaceSelection('Roamy Editor Command');
-			}
-		});
 
 		this.addCommand({
 			id: 'roamy-editor-command-fix-headings',
@@ -77,8 +51,28 @@ export default class MyPlugin extends Plugin {
 				console.log(editor.lineCount());
 				for (let l = 0; l < editor.lineCount(); l++) {
 					let lineStr = editor.getLine(l);
-					let fixedStr = lineStr.replace(/^\-\s#/,"#");
-					editor.setLine(l,fixedStr);
+					let fixedStr = "";
+					// fix a header ruined by a bullet, indented or not, and unintent it.
+					if (lineStr.match(/^\-\s#/)) {
+						fixedStr = lineStr.replace(/^\s*\-\s#/,"#");
+					}
+					// fix separator lines ---.
+					if (lineStr.match(/^\-\s\-/)) {
+						fixedStr = lineStr.replace(/^\-\s\-/,"-");
+					}
+					// remove indented bulletted lines
+					if (lineStr.match(/^\s+\-\s/)) {
+						if (lineStr.length > 40) {
+							fixedStr = lineStr.replace(/^\s+\-\s/,"");
+						} else {
+							fixedStr = lineStr.replace(/^\s+\-\s/,"- ");
+						}
+						
+					}
+					if (fixedStr != "") {
+						editor.setLine(l,fixedStr);
+					}
+					
 				}
 				// editor.replaceSelection('Roamy Editor Command');
 			}
@@ -106,13 +100,6 @@ export default class MyPlugin extends Plugin {
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new RoamySettingTab(this.app, this));
-/*
-		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
-		// Using this function will automatically remove the event listener when this plugin is disabled.
-		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-			console.log('Roamy click', evt);
-		});
-*/
 
 		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
 		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));

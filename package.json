@@ -1,6 +1,6 @@
 {
 	"name": "roamy-plugin",
-	"version": "0.2.0",
+	"version": "1.0.0",
 	"description": "Roamy reformats Roam Research Markdown Pages",
 	"main": "main.js",
 	"scripts": {
