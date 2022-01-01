@@ -57,17 +57,33 @@ export default class MyPlugin extends Plugin {
 		});
 
 		this.addCommand({
-			id: 'roamy-editor-command-fix-bullets',
-			name: 'roamy fix bullets',
+			id: 'roamy-editor-command-clobber-everything',
+			name: 'roamy clobber everything',
 			editorCallback: (editor: Editor, view: MarkdownView) => {
-				console.log("Roamy Fix Bullets");
+				console.log("Roamy Clobber Everything");
 				console.log(editor.lineCount());
 				for (let l = 0; l < editor.lineCount(); l++) {
-					editor.setLine(l, `This is line ${l}`);
+					editor.setLine(l, `- This is line ${l+1}`);
 				}
 				// editor.replaceSelection('Roamy Editor Command');
 			}
 		});
+
+		this.addCommand({
+			id: 'roamy-editor-command-fix-headings',
+			name: 'roamy fix headings',
+			editorCallback: (editor: Editor, view: MarkdownView) => {
+				console.log("Roamy Fix Bullets");
+				console.log(editor.lineCount());
+				for (let l = 0; l < editor.lineCount(); l++) {
+					let lineStr = editor.getLine(l);
+					let fixedStr = lineStr.replace(/^\-\s#/,"#");
+					editor.setLine(l,fixedStr);
+				}
+				// editor.replaceSelection('Roamy Editor Command');
+			}
+		});
+
 		// This adds a complex command that can check whether the current state of the app allows execution of the command
 		this.addCommand({
 			id: 'open-roamy-modal-complex',

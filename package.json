@@ -1,7 +1,7 @@
 {
 	"name": "roamy-plugin",
-	"version": "0.1.0",
-	"description": "Roamy Obsidian Plugin reformats Roam Research Markdown Pages",
+	"version": "0.2.0",
+	"description": "Roamy reformats Roam Research Markdown Pages",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",

@@ -1,4 +1,7 @@
 /* Sets all the text color to red! */
+/***
+* Right now I'm using this so I know the plugin is active.  Clear it later.
+***/
 body {
     color: yellow;
 }
