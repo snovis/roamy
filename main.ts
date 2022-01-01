@@ -3,11 +3,15 @@ import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Set
 // Remember to rename these classes and interfaces!
 
 interface MyPluginSettings {
-	mySetting: string;
+	mySetting: string,
+	noBullets: boolean,
+	message: string
 }
 
 const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default'
+	mySetting: 'default',
+	noBullets: true,
+	message: "Roamy Rules!"
 }
 
 export default class MyPlugin extends Plugin {
@@ -30,25 +34,25 @@ export default class MyPlugin extends Plugin {
 
 		// This adds a simple command that can be triggered anywhere
 		this.addCommand({
-			id: 'open-sample-modal-simple',
-			name: 'Open sample modal (simple)',
+			id: 'open-roamy-modal-simple',
+			name: 'Open roamy modal (simple)',
 			callback: () => {
-				new SampleModal(this.app).open();
+				new RoamyModal(this.app, this.settings.message).open();
 			}
 		});
 		// This adds an editor command that can perform some operation on the current editor instance
 		this.addCommand({
-			id: 'sample-editor-command',
-			name: 'Sample editor command',
+			id: 'roamy-editor-command',
+			name: 'roamy editor command',
 			editorCallback: (editor: Editor, view: MarkdownView) => {
 				console.log(editor.getSelection());
-				editor.replaceSelection('Sample Editor Command');
+				editor.replaceSelection('Roamy Editor Command');
 			}
 		});
 		// This adds a complex command that can check whether the current state of the app allows execution of the command
 		this.addCommand({
-			id: 'open-sample-modal-complex',
-			name: 'Open sample modal (complex)',
+			id: 'open-roamy-modal-complex',
+			name: 'Open roamy modal (complex)',
 			checkCallback: (checking: boolean) => {
 				// Conditions to check
 				const markdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
@@ -56,7 +60,7 @@ export default class MyPlugin extends Plugin {
 					// If checking is true, we're simply "checking" if the command can be run.
 					// If checking is false, then we want to actually perform the operation.
 					if (!checking) {
-						new SampleModal(this.app).open();
+						new RoamyModal(this.app, this.settings.message).open();
 					}
 
 					// This command will only show up in Command Palette when the check function returns true
@@ -66,7 +70,7 @@ export default class MyPlugin extends Plugin {
 		});
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new SampleSettingTab(this.app, this));
+		this.addSettingTab(new RoamySettingTab(this.app, this));
 
 		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
 		// Using this function will automatically remove the event listener when this plugin is disabled.
@@ -91,14 +95,18 @@ export default class MyPlugin extends Plugin {
 	}
 }
 
-class SampleModal extends Modal {
-	constructor(app: App) {
+class RoamyModal extends Modal {
+	message: string;
+
+	constructor(app: App, msg: string) {
 		super(app);
+		this.message = msg;
 	}
+
 
 	onOpen() {
 		const {contentEl} = this;
-		contentEl.setText('Woah!');
+		contentEl.setText(this.message);
 	}
 
 	onClose() {
@@ -107,7 +115,7 @@ class SampleModal extends Modal {
 	}
 }
 
-class SampleSettingTab extends PluginSettingTab {
+class RoamySettingTab extends PluginSettingTab {
 	plugin: MyPlugin;
 
 	constructor(app: App, plugin: MyPlugin) {
@@ -120,7 +128,7 @@ class SampleSettingTab extends PluginSettingTab {
 
 		containerEl.empty();
 
-		containerEl.createEl('h2', {text: 'Settings for my awesome plugin.'});
+		containerEl.createEl('h2', {text: 'Roamy Settings.'});
 
 		new Setting(containerEl)
 			.setName('Setting #1')
@@ -131,6 +139,17 @@ class SampleSettingTab extends PluginSettingTab {
 				.onChange(async (value) => {
 					console.log('Secret: ' + value);
 					this.plugin.settings.mySetting = value;
+					await this.plugin.saveSettings();
+				}));
+		new Setting(containerEl)
+			.setName('Message')
+			.setDesc('What should Roamy Say?')
+			.addText(text => text
+				.setPlaceholder('Message')
+				.setValue(this.plugin.settings.message)
+				.onChange(async (value) => {
+					console.log('Message: ' + value);
+					this.plugin.settings.message = value;
 					await this.plugin.saveSettings();
 				}));
 	}
